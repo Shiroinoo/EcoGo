@@ -33,8 +33,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 
-// ---------- Colores ----------
+
+//Colores
 val AzulFondo = Color(0xFF4F7A9C)
 val AzulOscuro = Color(0xFF2D5577)
 val AzulLogo = Color(0xFF0B2A4A)
@@ -42,7 +44,7 @@ val Amarillo = Color(0xFFD8B03A)
 val GrisClaro = Color(0xFFB0C4D2)
 val GrisOscuro = Color(0xFF2B2B2B)
 
-// ---------- Rutas ----------
+// Rutas
 object Rutas {
     const val INICIO = "inicio"
     const val SELECCION = "seleccion"
@@ -69,15 +71,20 @@ fun EcoGoApp() {
         composable(Rutas.SELECCION) {
             PantallaSeleccion(
                 onPilas = { nav.navigate(Rutas.PILAS) },
-                onPapel = { nav.navigate(Rutas.PAPEL) }
+                onPapel = { nav.navigate(Rutas.PAPEL) },
+                onVolver = { nav.popBackStack() }
             )
         }
-        composable(Rutas.PILAS) { PantallaPilas() }
-        composable(Rutas.PAPEL) { PantallaPapel() }
+        composable(Rutas.PILAS) {
+            PantallaPilas(onVolver = { nav.popBackStack() })
+        }
+        composable(Rutas.PAPEL) {
+            PantallaPapel(onVolver = { nav.popBackStack() })
+        }
     }
 }
 
-// ---------- Componentes reutilizables ----------
+//Componentes reutilizables
 @Composable
 fun Logo(ancho: Dp = 140.dp) {
     Image(
@@ -87,15 +94,28 @@ fun Logo(ancho: Dp = 140.dp) {
     )
 }
 @Composable
-fun Encabezado() {
-    Box(
+fun Encabezado(onVolver: (() -> Unit)? = null) {
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
             .background(AzulOscuro)
             .statusBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
-    ) { Logo() }
+            .padding(horizontal = 8.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (onVolver != null) {
+            IconButton(onClick = onVolver) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Volver",
+                    tint = Color.White
+                )
+            }
+        }
+        Spacer(Modifier.width(8.dp))
+        Logo()
+    }
 }
 
 @Composable
@@ -112,7 +132,7 @@ fun Etiqueta(texto: String, modifier: Modifier = Modifier, onClick: (() -> Unit)
     )
 }
 
-// ---------- Pantalla 1: Inicio ----------
+// Pantalla de Inicio
 @Composable
 fun PantallaInicio(onEntrar: () -> Unit) {
     Column(
@@ -159,15 +179,15 @@ fun PantallaInicio(onEntrar: () -> Unit) {
     }
 }
 
-// ---------- Pantalla 2: Selección de material ----------
+// Pantalla 2: Selección de material
 @Composable
-fun PantallaSeleccion(onPilas: () -> Unit, onPapel: () -> Unit) {
+fun PantallaSeleccion(onPilas: () -> Unit, onPapel: () -> Unit, onVolver: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(AzulFondo)
     ) {
-        Encabezado()
+        Encabezado(onVolver)
 
         Spacer(Modifier.height(48.dp))
         Text(
@@ -210,9 +230,9 @@ fun BotonMaterial(texto: String, color: Color, onClick: () -> Unit) {
     }
 }
 
-// ---------- Pantalla 3: Pilas ----------
+// Pantalla 3: Pilas
 @Composable
-fun PantallaPilas() {
+fun PantallaPilas(onVolver: () -> Unit) {
     val context = LocalContext.current
     val tipos = listOf(
         "Pilas Alcalinas y recargables\n(AA, AAA, 9V, etc)",
@@ -226,12 +246,12 @@ fun PantallaPilas() {
             .fillMaxSize()
             .background(AzulFondo)
     ) {
-        Encabezado()
+        Encabezado(onVolver)
 
         Column(
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+                .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
@@ -267,15 +287,15 @@ fun PantallaPilas() {
     }
 }
 
-// ---------- Pantalla Papel (pendiente de diseñar) ----------
+//  Pantalla Papel
 @Composable
-fun PantallaPapel() {
+fun PantallaPapel(onVolver: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(AzulFondo)
     ) {
-        Encabezado()
+        Encabezado(onVolver)
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(
                 "Información de papel próximamente",
